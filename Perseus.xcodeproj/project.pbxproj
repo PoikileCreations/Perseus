@@ -23,6 +23,8 @@
 		964725F0283F1F9900DF76E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 964725C1283F1F9900DF76E6 /* Assets.xcassets */; };
 		96472600283F223C00DF76E6 /* AuthorsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964725FF283F223C00DF76E6 /* AuthorsModel.swift */; };
 		96472601283F223C00DF76E6 /* AuthorsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964725FF283F223C00DF76E6 /* AuthorsModel.swift */; };
+		964726032842645200DF76E6 /* PerseusBookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964726022842645200DF76E6 /* PerseusBookParser.swift */; };
+		964726042842645200DF76E6 /* PerseusBookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964726022842645200DF76E6 /* PerseusBookParser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +60,7 @@
 		964725E3283F1F9900DF76E6 /* Tests_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOS.swift; sourceTree = "<group>"; };
 		964725E5283F1F9900DF76E6 /* Tests_macOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOSLaunchTests.swift; sourceTree = "<group>"; };
 		964725FF283F223C00DF76E6 /* AuthorsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorsModel.swift; sourceTree = "<group>"; };
+		964726022842645200DF76E6 /* PerseusBookParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerseusBookParser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,7 @@
 				964725BF283F1F9800DF76E6 /* ContentView.swift */,
 				964725BE283F1F9800DF76E6 /* PerseusApp.swift */,
 				964725C0283F1F9800DF76E6 /* Persistence.swift */,
+				964726022842645200DF76E6 /* PerseusBookParser.swift */,
 				964725C1283F1F9900DF76E6 /* Assets.xcassets */,
 				964725BC283F1F9800DF76E6 /* Perseus.xcdatamodeld */,
 			);
@@ -312,6 +316,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				964725E7283F1F9900DF76E6 /* Perseus.xcdatamodeld in Sources */,
+				964726032842645200DF76E6 /* PerseusBookParser.swift in Sources */,
 				964725ED283F1F9900DF76E6 /* Persistence.swift in Sources */,
 				964725E9283F1F9900DF76E6 /* PerseusApp.swift in Sources */,
 				96472600283F223C00DF76E6 /* AuthorsModel.swift in Sources */,
@@ -324,6 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				964725E8283F1F9900DF76E6 /* Perseus.xcdatamodeld in Sources */,
+				964726042842645200DF76E6 /* PerseusBookParser.swift in Sources */,
 				964725EE283F1F9900DF76E6 /* Persistence.swift in Sources */,
 				964725EA283F1F9900DF76E6 /* PerseusApp.swift in Sources */,
 				96472601283F223C00DF76E6 /* AuthorsModel.swift in Sources */,

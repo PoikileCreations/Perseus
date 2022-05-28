@@ -62,9 +62,9 @@ struct WorkView: View {
         .navigationTitle(work.title ?? "")
         .task {
             if let perseusID = work.perseusID,
-               let url = URL(string: "https://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3atext%3a\(perseusID)") {
-                let (data, _) = try! await URLSession.shared.data(from: url)
-                text = String(data: data, encoding: .utf8) ?? "invalid"
+               let perseusXML = PerseusBookParser(perseusID: perseusID) {
+                perseusXML.parse()
+                text = perseusXML.book.text ?? "Failed to download text"
             }
         }
     }
