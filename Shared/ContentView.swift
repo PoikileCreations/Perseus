@@ -51,34 +51,22 @@ struct AuthorView: View {
 
 struct WorkView: View {
 
-    class WorkViewModel: ObservableObject {
-
-        @Published var text: String?
-
-        var work: Work? {
-            didSet {
-                if let perseusID = work?.perseusID,
-                   let url = URL(string: "https://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3atext%3a\(perseusID)") {
-                    Task {
-                        let (data, _) = try! await URLSession.shared.data(from: url)
-                        text = String(data: data, encoding: .utf8)
-                    }
-                }
-            }
-        }
-
-    }
-
-    @ObservedObject var workViewModel = WorkViewModel()
+    @State private var text = "Downloading text…"
 
     var work: Work
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8.0) {
-            Text(workViewModel.text ?? "Downloading text…")
+            Text(text)
         }
         .navigationTitle(work.title ?? "")
-        .onAppear(perform: { workViewModel.work = work })
+        .task {
+            if let perseusID = work.perseusID,
+               let url = URL(string: "https://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3atext%3a\(perseusID)") {
+                let (data, _) = try! await URLSession.shared.data(from: url)
+                text = String(data: data, encoding: .utf8) ?? "invalid"
+            }
+        }
     }
 
 }
