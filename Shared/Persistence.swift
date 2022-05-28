@@ -8,7 +8,30 @@
 import CoreData
 
 struct PersistenceController {
-    static let shared = PersistenceController()
+    static let shared: PersistenceController = {
+        let controller = PersistenceController(inMemory: true)
+        let viewContext = controller.container.viewContext
+
+        let caesar = Author(context: viewContext)
+        caesar.fullName = "Gaius Julius Caesar"
+        caesar.sortName = "Caesar"
+
+        let deBelloGallico = Work(context: viewContext)
+        deBelloGallico.title = "De bello Gallico"
+        deBelloGallico.language = "la"
+        deBelloGallico.perseusID = "1999.02.0002"
+        caesar.addToWorks(deBelloGallico)
+
+        let deBelloCivili = Work(context: viewContext)
+        deBelloCivili.title = "De bello civile"
+        deBelloCivili.language = "la"
+        deBelloCivili.perseusID = "1999.02.0075"
+        caesar.addToWorks(deBelloCivili)
+
+        try! viewContext.save()
+
+        return controller
+    }()
 
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)

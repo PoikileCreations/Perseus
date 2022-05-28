@@ -8,83 +8,107 @@
 import SwiftUI
 import CoreData
 
+extension Author: Comparable {
+
+    public static func < (lhs: Author, rhs: Author) -> Bool {
+        return (lhs.sortName ?? "") < (rhs.sortName ?? "")
+    }
+
+    public func sortedWorks() -> [Work] {
+        let worksSet = Set(works!.allObjects as! [Work])
+
+        return Array(worksSet)
+    }
+
+}
+
+extension Work: Comparable {
+
+    public static func < (lhs: Work, rhs: Work) -> Bool {
+        return (lhs.title ?? "") < (rhs.title ?? "")
+    }
+
+}
+
+struct AuthorView: View {
+
+    var author: Author
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8.0) {
+            ForEach(author.sortedWorks()) { (work) in
+                NavigationLink(destination: WorkView(work: work)) {
+                    Text(work.title ?? "(untitled)")
+                }
+            }
+
+            Spacer()
+        }
+        .navigationTitle(author.fullName ?? "")
+    }
+
+}
+
+struct WorkView: View {
+
+    class WorkViewModel: ObservableObject {
+
+        @Published var text: String?
+
+        var work: Work? {
+            didSet {
+                if let perseusID = work?.perseusID,
+                   let url = URL(string: "https://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3atext%3a\(perseusID)") {
+                    Task {
+                        let (data, _) = try! await URLSession.shared.data(from: url)
+                        text = String(data: data, encoding: .utf8)
+                    }
+                }
+            }
+        }
+
+    }
+
+    @ObservedObject var workViewModel = WorkViewModel()
+
+    var work: Work
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8.0) {
+            Text(workViewModel.text ?? "Downloading text…")
+        }
+        .navigationTitle(work.title ?? "")
+        .onAppear(perform: { workViewModel.work = work })
+    }
+
+}
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Author.sortName, ascending: true)],
         animation: .default)
-    private var items: FetchedResults<Item>
+    private var authors: FetchedResults<Author>
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+            VStack(alignment: .leading, spacing: 8.0) {
+                ForEach(authors, id: \Author.sortName) { (author) in
+                    NavigationLink(destination: AuthorView(author: author)) {
+                        Text(author.fullName ?? "(unknown)")
                     }
                 }
-                .onDelete(perform: deleteItems)
+
+                Spacer()
             }
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
+            .navigationTitle("Authors")
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
-struct ContentView_Previews: PreviewProvider {
+struct ContentViewPreviews: PreviewProvider {
     static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        ContentView().environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
     }
 }

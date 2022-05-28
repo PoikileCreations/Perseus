@@ -1,9 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="true" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21E258" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Author" representedClassName="Author" syncable="YES" codeGenerationType="class">
+        <attribute name="englishName" optional="YES" attributeType="String"/>
+        <attribute name="fullName" optional="YES" attributeType="String"/>
+        <attribute name="nickname" optional="YES" attributeType="String"/>
+        <attribute name="sortName" optional="YES" attributeType="String"/>
+        <relationship name="works" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="authors" inverseEntity="Work"/>
+    </entity>
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
+    <entity name="Translator" representedClassName="Translator" syncable="YES" codeGenerationType="class">
+        <attribute name="fullName" optional="YES" attributeType="String"/>
+        <attribute name="sortName" optional="YES" attributeType="String"/>
+        <relationship name="works" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="translators" inverseEntity="Work"/>
+    </entity>
+    <entity name="Work" representedClassName="Work" syncable="YES" codeGenerationType="class">
+        <attribute name="language" optional="YES" attributeType="String"/>
+        <attribute name="perseusID" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="authors" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Author" inverseName="works" inverseEntity="Author"/>
+        <relationship name="partOf" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Work" inverseName="subworks" inverseEntity="Work"/>
+        <relationship name="subworks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="partOf" inverseEntity="Work"/>
+        <relationship name="translationOf" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Work" inverseName="translations" inverseEntity="Work"/>
+        <relationship name="translations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="translationOf" inverseEntity="Work"/>
+        <relationship name="translators" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Translator" inverseName="works" inverseEntity="Translator"/>
+    </entity>
     <elements>
         <element name="Item" positionX="-63" positionY="-18" width="128" height="44"/>
+        <element name="Author" positionX="-63" positionY="-9" width="128" height="14"/>
+        <element name="Work" positionX="-54" positionY="0" width="128" height="14"/>
+        <element name="Translator" positionX="-36" positionY="45" width="128" height="74"/>
     </elements>
 </model>
