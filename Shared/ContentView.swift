@@ -57,7 +57,9 @@ struct WorkView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8.0) {
-            Text(text)
+            ScrollView {
+                Text(text)
+            }
         }
         .navigationTitle(work.title ?? "")
         .task {

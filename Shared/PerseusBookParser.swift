@@ -18,12 +18,12 @@ public protocol PerseusElement {
 public struct Milestone: PerseusElement {
 
     public static var tag = "milestone"
-    public var number: Int = 1
+    public var number: Int = -1
     public var text: String?
     public var unit: String = "section"
 
-    public init(_ attributes: [String : String]) {
-        if let numberString = attributes["number"] {
+    public init(_ attributes: [String : String] = [:]) {
+        if let numberString = attributes["n"] {
            number = Int(numberString)!
         }
 
@@ -39,7 +39,10 @@ public struct PerseusBook: PerseusElement {
     public var milestones: [Milestone] = []
 
     public var text: String? {
-        return milestones.compactMap { $0.text }.joined(separator: " ")
+        return milestones
+            .filter { $0.text != nil }
+            .map { "[\($0.number)] \($0.text!)" }
+            .joined(separator: "")
     }
 
 }
@@ -50,10 +53,12 @@ public class PerseusBookParser: XMLParser {
 
     private var currentMilestone: Milestone?
 
+    private var currentText = ""
+
     // MARK: - Initialization
 
     public convenience init?(perseusID: String) {
-        let url = URL(string: "https://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3atext%3a\(perseusID)")!
+        let url = URL(string: "https://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3atext%3a\(perseusID)%3Abook%3D1")!
         self.init(contentsOf: url)
 
         self.delegate = self
@@ -69,8 +74,13 @@ extension PerseusBookParser: XMLParserDelegate {
                        qualifiedName qName: String?,
                        attributes: [String : String] = [:]) {
         switch elementName {
+        case "gap":
+            currentText = currentText + "…"
         case Milestone.tag:
+            currentMilestone?.text = currentText
+
             if let milestone = currentMilestone {
+                currentText = ""
                 book.milestones.append(milestone)
             }
 
@@ -85,6 +95,13 @@ extension PerseusBookParser: XMLParserDelegate {
                        namespaceURI: String?,
                        qualifiedName qName: String?) {
         switch elementName {
+        case "p":
+            currentMilestone?.text = currentText
+
+            if let milestone = currentMilestone {
+                currentText = ""
+                book.milestones.append(milestone)
+            }
         default:
             return
         }
@@ -92,7 +109,7 @@ extension PerseusBookParser: XMLParserDelegate {
 
     public func parser(_ parser: XMLParser,
                        foundCharacters string: String) {
-        currentMilestone?.text = string
+        currentText = currentText.appending(string.trimmingCharacters(in: .whitespacesAndNewlines) + " ")
     }
 
 }
