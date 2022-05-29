@@ -15,7 +15,7 @@ extension Author: Comparable {
     }
 
     public func sortedWorks() -> [Work] {
-        let worksSet = Set(works!.allObjects as! [Work])
+        let worksSet = Set(works!.allObjects as! [Work]).sorted()
 
         return Array(worksSet)
     }
@@ -25,7 +25,7 @@ extension Author: Comparable {
 extension Work: Comparable {
 
     public static func < (lhs: Work, rhs: Work) -> Bool {
-        return (lhs.title ?? "") < (rhs.title ?? "")
+        return (lhs.title ?? "").caseInsensitiveCompare(rhs.title ?? "") == .orderedAscending
     }
 
 }
@@ -61,14 +61,18 @@ struct WorkView: View {
                 Text(text)
             }
         }
+        .padding()
         .navigationTitle(work.title ?? "")
         .task {
-            if let perseusID = work.perseusID,
-               let perseusXML = PerseusBookParser(perseusID: perseusID) {
-                perseusXML.parse()
-                text = perseusXML.book.text ?? "Failed to download text"
-            }
-        }
+            DispatchQueue(label: "xml-parser").async {
+                if let perseusID = work.perseusID,
+                   let perseusXML = PerseusBookParser(perseusID: perseusID) {
+                    perseusXML.parse()
+                    DispatchQueue.main.async {
+                        text = perseusXML.book.text
+                    }
+                }
+            }}
     }
 
 }
