@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "swift-html-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rnantes/swift-html-parser.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "4b677b55a89a2d7124a5d610589a25fe6d567cb7"
+      }
+    }
+  ],
+  "version" : 2
+}

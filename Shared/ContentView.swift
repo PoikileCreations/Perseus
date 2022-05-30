@@ -77,6 +77,9 @@ struct WorkView: View {
 
 }
 struct ContentView: View {
+
+    @ObservedObject var authorsModel = AuthorsModel()
+
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
@@ -96,6 +99,9 @@ struct ContentView: View {
                 Spacer()
             }
             .navigationTitle("Authors")
+        }
+        .task {
+            authorsModel.fetchAuthors()
         }
     }
 

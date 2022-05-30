@@ -25,6 +25,7 @@
 		96472601283F223C00DF76E6 /* AuthorsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964725FF283F223C00DF76E6 /* AuthorsModel.swift */; };
 		964726032842645200DF76E6 /* PerseusBookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964726022842645200DF76E6 /* PerseusBookParser.swift */; };
 		964726042842645200DF76E6 /* PerseusBookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964726022842645200DF76E6 /* PerseusBookParser.swift */; };
+		9647260A28446D8800DF76E6 /* SwiftHTMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 9647260928446D8800DF76E6 /* SwiftHTMLParser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9647260A28446D8800DF76E6 /* SwiftHTMLParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,6 +175,9 @@
 			dependencies = (
 			);
 			name = "Perseus (iOS)";
+			packageProductDependencies = (
+				9647260928446D8800DF76E6 /* SwiftHTMLParser */,
+			);
 			productName = "Perseus (iOS)";
 			productReference = 964725C6283F1F9900DF76E6 /* Perseus.app */;
 			productType = "com.apple.product-type.application";
@@ -265,6 +270,9 @@
 				Base,
 			);
 			mainGroup = 964725B6283F1F9800DF76E6;
+			packageReferences = (
+				9647260828446D8800DF76E6 /* XCRemoteSwiftPackageReference "swift-html-parser" */,
+			);
 			productRefGroup = 964725C7283F1F9900DF76E6 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -725,6 +733,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9647260828446D8800DF76E6 /* XCRemoteSwiftPackageReference "swift-html-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rnantes/swift-html-parser.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9647260928446D8800DF76E6 /* SwiftHTMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9647260828446D8800DF76E6 /* XCRemoteSwiftPackageReference "swift-html-parser" */;
+			productName = SwiftHTMLParser;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		964725BC283F1F9800DF76E6 /* Perseus.xcdatamodeld */ = {
