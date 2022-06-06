@@ -43,11 +43,9 @@ class AuthorsModel: ObservableObject {
                     ElementSelector().withTagName("div").withId("index_main_col"),
                     ElementSelector().withTagName("div").withId("documents"),
                     ElementSelector().withTagName("table").withClassName("tResults"),
-                    ElementSelector().withTagName("tr").withClassName("trResults")
-//                    TextNodeSelector()
-//                    ElementSelector().withTagName("td").withClassName("tdAuthor")
+                    ElementSelector().withTagName("tr").withClassName("trResults"),
+                    ElementSelector().withTagName("td").withClassName("tdAuthor")
                 ]
-//                let selectorPath = try "/html/body/div/div/".nodeSelectorPath()
                 HTMLTraverser.findNodes(in: authorsHtml, matching: selectorPath).forEach { self.parseAuthorNode($0) }
             } catch {
                 print("Failed to parse the authors: \(error)")
@@ -56,10 +54,20 @@ class AuthorsModel: ObservableObject {
     }
 
     func parseAuthorNode(_ node: Node) {
-        if let authorId = (node as? Element)?.id,
-           let authorName = authorId.split(separator: ",").first {
-            print(authorName)
+        guard let authorElement = (node as? Element) else {
+            print("Unknown element: \(node)")
+
+            return
         }
+
+        guard let authorNameNode = (authorElement.childNodes[0] as? TextNode) else {
+            print("First node was not the author's name")
+
+            return
+        }
+
+        let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
+        print(authorName)
     }
 
 }
