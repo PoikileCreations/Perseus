@@ -8,6 +8,38 @@
 import Foundation
 import SwiftHTMLParser
 
+extension Element {
+
+    var asHTML: String {
+        let indentation = String(repeating: "  ", count: depth)
+        var str = "\(indentation)<" + tagName
+
+        if id != nil { str.append(" id=\"\(id!)\"") }
+        if !classNames.isEmpty { str.append(" class=\"\(classNames.joined(separator: ","))\"") }
+        str.append(">")
+
+        if isSelfClosingElement {
+            return str
+        }
+
+        childElements.forEach { (child) in
+            str.append("\n")
+            str.append(child.asHTML)
+        }
+
+        str.append(textNodes.map { $0.text }.joined(separator: " "))
+
+        if textNodes.isEmpty {
+            str.append(indentation)
+        }
+
+        str.append("</\(tagName)>")
+
+        return str
+    }
+
+}
+
 extension String {
 
     func nodeSelectorPath() throws -> [NodeSelector] {
@@ -61,7 +93,7 @@ class AuthorsModel: ObservableObject {
         }
 
         guard let authorNameNode = (authorElement.childNodes[0] as? TextNode) else {
-            print("First node was not the author's name")
+            print("First node was not the author's name!\n\(authorElement.asHTML)")
 
             return
         }
