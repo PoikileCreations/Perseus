@@ -86,20 +86,24 @@ class AuthorsModel: ObservableObject {
     }
 
     func parseAuthorNode(_ node: Node) {
-        guard let authorElement = (node as? Element) else {
+        guard let authorElement = (node as? Element),
+        let firstChildNode = authorElement.childNodes.first else {
             print("Unknown element: \(node)")
-
+            
             return
         }
-
-        guard let authorNameNode = (authorElement.childNodes[0] as? TextNode) else {
-            print("First node was not the author's name!\n\(authorElement.asHTML)")
-
-            return
+        
+        if let authorNameNode = (firstChildNode as? TextNode) {
+            //            print("First node was not the author's name!\n\(authorElement.asHTML)")
+            let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
+            print("Author: \(authorName)")
+        } else if let titleNode = (firstChildNode as? Element),
+                  titleNode.tagName == "a",
+                  let title = titleNode.textNodes.first?.text {
+            print("Title: \(title)")
         }
-
-        let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
-        print(authorName)
+        
+//        print(authorName)
     }
 
 }
