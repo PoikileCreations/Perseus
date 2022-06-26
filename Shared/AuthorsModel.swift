@@ -75,34 +75,55 @@ class AuthorsModel: ObservableObject {
                     ElementSelector().withTagName("div").withId("index_main_col"),
                     ElementSelector().withTagName("div").withId("documents"),
                     ElementSelector().withTagName("table").withClassName("tResults"),
-                    ElementSelector().withTagName("tr").withClassName("trResults"),
-                    ElementSelector().withTagName("td").withClassName("tdAuthor")
+                    ElementSelector().withTagName("tr").withClassName("trResults")
                 ]
-                HTMLTraverser.findNodes(in: authorsHtml, matching: selectorPath).forEach { self.parseAuthorNode($0) }
+                HTMLTraverser.findNodes(in: authorsHtml, matching: selectorPath).forEach { self.parseResultsNode($0) }
             } catch {
                 print("Failed to parse the authors: \(error)")
             }
         }
     }
 
+    func parseResultsNode(_ node: Node) {
+        guard let element = node as? Element,
+              let id = element.id else {
+            print("Skipping \(node)")
+
+            return
+        }
+
+        let idElements = id.split(separator: ",")
+
+        let authorName: String
+
+        if idElements.count == 3 {
+            authorName = String(idElements[0])
+        } else {
+            authorName = "Anonymous"
+        }
+
+        print("Author: \(authorName)")
+    }
+
     func parseAuthorNode(_ node: Node) {
         guard let authorElement = (node as? Element),
         let firstChildNode = authorElement.childNodes.first else {
             print("Unknown element: \(node)")
-            
+
             return
         }
-        
+
         if let authorNameNode = (firstChildNode as? TextNode) {
             //            print("First node was not the author's name!\n\(authorElement.asHTML)")
             let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
             print("Author: \(authorName)")
+            authors.append(authorName)
         } else if let titleNode = (firstChildNode as? Element),
                   titleNode.tagName == "a",
                   let title = titleNode.textNodes.first?.text {
             print("Title: \(title)")
         }
-        
+
 //        print(authorName)
     }
 
