@@ -103,6 +103,18 @@ class AuthorsModel: ObservableObject {
         }
 
         print("Author: \(authorName)")
+
+        let selectorPath: [NodeSelector] = [
+            ElementSelector().withTagName("ul"),
+            ElementSelector().withTagName("li"),
+            ElementSelector().withTagName("a").withClassName("aResultsHeader")
+        ]
+
+        HTMLTraverser.findNodes(in: [node], matching: selectorPath).forEach { (workLinkNode) in
+            if let linkElement = workLinkNode as? Element {
+                print(linkElement.textNodes.first)
+            }
+        }
     }
 
     func parseAuthorNode(_ node: Node) {
@@ -114,7 +126,6 @@ class AuthorsModel: ObservableObject {
         }
 
         if let authorNameNode = (firstChildNode as? TextNode) {
-            //            print("First node was not the author's name!\n\(authorElement.asHTML)")
             let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
             print("Author: \(authorName)")
             authors.append(authorName)
@@ -123,8 +134,6 @@ class AuthorsModel: ObservableObject {
                   let title = titleNode.textNodes.first?.text {
             print("Title: \(title)")
         }
-
-//        print(authorName)
     }
 
 }
