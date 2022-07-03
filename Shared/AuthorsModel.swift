@@ -105,14 +105,17 @@ class AuthorsModel: ObservableObject {
         print("Author: \(authorName)")
 
         let selectorPath: [NodeSelector] = [
-            ElementSelector().withTagName("ul"),
+            ElementSelector().withTagName("tr").withClassName("trResults"),
+            ElementSelector().withTagName("td").withTagName("tdAuthor"),
+            ElementSelector().withTagName("ul").withClassName("subdoc"),
             ElementSelector().withTagName("li"),
             ElementSelector().withTagName("a").withClassName("aResultsHeader")
         ]
 
         HTMLTraverser.findNodes(in: [node], matching: selectorPath).forEach { (workLinkNode) in
             if let linkElement = workLinkNode as? Element {
-                print(linkElement.textNodes.first)
+                print("\t" + linkElement.attributeValue(for: "href")!)
+                print("\t" + linkElement.textNodes.first!.text)
             }
         }
     }
