@@ -80,7 +80,7 @@ struct ContentView: View {
 
     @ObservedObject var authorsModel = AuthorsModel()
 
-    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.managedObjectContext) private var viewContext: NSManagedObjectContext
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Author.sortName, ascending: true)],
@@ -89,19 +89,21 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 8.0) {
-                ForEach(authors, id: \Author.sortName) { (author) in
-                    NavigationLink(destination: AuthorView(author: author)) {
-                        Text(author.fullName ?? "(unknown)")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8.0) {
+                    ForEach(authors, id: \Author.sortName) { (author) in
+                        NavigationLink(destination: AuthorView(author: author)) {
+                            Text(author.fullName ?? "(unknown)")
+                        }
                     }
+                    
+                    Spacer()
                 }
-
-                Spacer()
             }
             .navigationTitle("Authors")
         }
         .task {
-            authorsModel.fetchAuthors()
+            authorsModel.fetchAuthors(viewContext: viewContext)
         }
     }
 

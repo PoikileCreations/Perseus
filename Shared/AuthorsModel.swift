@@ -5,8 +5,10 @@
 //  Created by Jason R Tibbetts on 5/25/22.
 //
 
+import CoreData
 import Foundation
 import SwiftHTMLParser
+import SwiftUI
 
 extension Element {
 
@@ -60,12 +62,14 @@ class AuthorsModel: ObservableObject {
 
     @Published var authors: [String] = []
 
-    func fetchAuthors() {
+    func fetchAuthors(viewContext: NSManagedObjectContext) {
         DispatchQueue(label: "download-authors").async {
             do {
                 let authorsUrl = URL(string: "https://www.perseus.tufts.edu/hopper/collection?collection=Perseus:collection:Greco-Roman")!
                 let authorsString = try String(contentsOf: authorsUrl)
                 let authorsHtml = try HTMLParser.parse(authorsString)
+
+                var authorNodes: [Node] = []
 
                 let authorPath = [
                     ElementSelector().withTagName("html"),
@@ -78,7 +82,7 @@ class AuthorsModel: ObservableObject {
                     ElementSelector().withTagName("tr").withClassName("trResults")
                 ]
 
-                HTMLTraverser.findNodes(in: authorsHtml, matching: authorPath).forEach { self.parseAuthorNode($0) }
+                authorNodes.append(contentsOf: HTMLTraverser.findNodes(in: authorsHtml, matching: authorPath))
 
                 let hiddenAuthorPath = [
                     ElementSelector().withTagName("html"),
@@ -91,14 +95,21 @@ class AuthorsModel: ObservableObject {
                     ElementSelector().withTagName("tr").withClassName("trHiddenResults")
                 ]
 
-                HTMLTraverser.findNodes(in: authorsHtml, matching: hiddenAuthorPath).forEach { self.parseAuthorNode($0) }
+                authorNodes.append(contentsOf: HTMLTraverser.findNodes(in: authorsHtml, matching: hiddenAuthorPath))
+
+                authorNodes.forEach { self.parseAuthorNode($0, viewContext: viewContext) }
+
+                if viewContext.hasChanges {
+                    try viewContext.save()
+                }
             } catch {
                 print("Failed to parse the authors: \(error)")
             }
         }
     }
 
-    func parseAuthorNode(_ authorNode: Node) {
+    func parseAuthorNode(_ authorNode: Node,
+                         viewContext: NSManagedObjectContext) {
         guard let element = authorNode as? Element,
               let id = element.id else {
             print("Skipping \(authorNode)")
@@ -118,6 +129,25 @@ class AuthorsModel: ObservableObject {
 
         print("Author: \(authorName)")
 
+        var author: Author?
+
+        let authorRequest = NSFetchRequest<Author>(entityName: "Author")
+        authorRequest.predicate = NSPredicate(format: "sortName == %@", authorName)
+
+        do {
+            author = try viewContext.fetch(authorRequest).first
+        } catch {
+            print("Failed to fetch the author")
+        }
+
+        if author == nil {
+            author = Author(context: viewContext)
+            author?.fullName = authorName
+            author?.sortName = authorName
+        }
+
+        var workNodes: [Node] = []
+
         let subdocWorkPath: [NodeSelector] = [
             ElementSelector().withTagName("tr"),
             ElementSelector().withTagName("td").withTagName("tdAuthor"),
@@ -126,7 +156,7 @@ class AuthorsModel: ObservableObject {
             ElementSelector().withTagName("a").withClassName("aResultsHeader")
         ]
 
-        HTMLTraverser.findNodes(in: [authorNode], matching: subdocWorkPath).forEach { parseWorkNode($0) }
+        workNodes.append(contentsOf: HTMLTraverser.findNodes(in: [authorNode], matching: subdocWorkPath))
 
         let standaloneWorkPath = [
             ElementSelector().withTagName("tr"),
@@ -134,33 +164,16 @@ class AuthorsModel: ObservableObject {
             ElementSelector().withTagName("a").withClassName("aResultsHeader")
         ]
 
-        HTMLTraverser.findNodes(in: [authorNode], matching: standaloneWorkPath).forEach { parseWorkNode($0) }
+        workNodes.append(contentsOf: HTMLTraverser.findNodes(in: [authorNode], matching: standaloneWorkPath))
+
+        workNodes.forEach { parseWorkNode($0, author: author!) }
     }
 
-    func parseWorkNode(_ node: Node) {
+    func parseWorkNode(_ node: Node, author: Author) {
         if let workElement = node as? Element {
             print("\t" + workElement.attributeValue(for: "href")!)
             print("\t" + workElement.textNodes.first!.text)
         }
     }
-
-//    func parseAuthorNode(_ node: Node) {
-//        guard let authorElement = (node as? Element),
-//        let firstChildNode = authorElement.childNodes.first else {
-//            print("Unknown element: \(node)")
-//
-//            return
-//        }
-//
-//        if let authorNameNode = (firstChildNode as? TextNode) {
-//            let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
-//            print("Author: \(authorName)")
-//            authors.append(authorName)
-//        } else if let titleNode = (firstChildNode as? Element),
-//                  titleNode.tagName == "a",
-//                  let title = titleNode.textNodes.first?.text {
-//            print("Title: \(title)")
-//        }
-//    }
 
 }
