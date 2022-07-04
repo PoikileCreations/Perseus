@@ -67,7 +67,7 @@ class AuthorsModel: ObservableObject {
                 let authorsString = try String(contentsOf: authorsUrl)
                 let authorsHtml = try HTMLParser.parse(authorsString)
 
-                let selectorPath: [NodeSelector] = [
+                let authorPath = [
                     ElementSelector().withTagName("html"),
                     ElementSelector().withTagName("body"),
                     ElementSelector().withTagName("div").withId("main"),
@@ -77,17 +77,31 @@ class AuthorsModel: ObservableObject {
                     ElementSelector().withTagName("table").withClassName("tResults"),
                     ElementSelector().withTagName("tr").withClassName("trResults")
                 ]
-                HTMLTraverser.findNodes(in: authorsHtml, matching: selectorPath).forEach { self.parseResultsNode($0) }
+
+                HTMLTraverser.findNodes(in: authorsHtml, matching: authorPath).forEach { self.parseAuthorNode($0) }
+
+                let hiddenAuthorPath = [
+                    ElementSelector().withTagName("html"),
+                    ElementSelector().withTagName("body"),
+                    ElementSelector().withTagName("div").withId("main"),
+                    ElementSelector().withTagName("div").withId("content"),
+                    ElementSelector().withTagName("div").withId("index_main_col"),
+                    ElementSelector().withTagName("div").withId("documents"),
+                    ElementSelector().withTagName("table").withClassName("tResults"),
+                    ElementSelector().withTagName("tr").withClassName("trHiddenResults")
+                ]
+
+                HTMLTraverser.findNodes(in: authorsHtml, matching: hiddenAuthorPath).forEach { self.parseAuthorNode($0) }
             } catch {
                 print("Failed to parse the authors: \(error)")
             }
         }
     }
 
-    func parseResultsNode(_ node: Node) {
-        guard let element = node as? Element,
+    func parseAuthorNode(_ authorNode: Node) {
+        guard let element = authorNode as? Element,
               let id = element.id else {
-            print("Skipping \(node)")
+            print("Skipping \(authorNode)")
 
             return
         }
@@ -96,47 +110,57 @@ class AuthorsModel: ObservableObject {
 
         let authorName: String
 
-        if idElements.count == 3 {
-            authorName = String(idElements[0])
+        if idElements.count >= 3 {
+            authorName = idElements.dropLast(2).joined()
         } else {
             authorName = "Anonymous"
         }
 
         print("Author: \(authorName)")
 
-        let selectorPath: [NodeSelector] = [
-            ElementSelector().withTagName("tr").withClassName("trResults"),
+        let subdocWorkPath: [NodeSelector] = [
+            ElementSelector().withTagName("tr"),
             ElementSelector().withTagName("td").withTagName("tdAuthor"),
             ElementSelector().withTagName("ul").withClassName("subdoc"),
             ElementSelector().withTagName("li"),
             ElementSelector().withTagName("a").withClassName("aResultsHeader")
         ]
 
-        HTMLTraverser.findNodes(in: [node], matching: selectorPath).forEach { (workLinkNode) in
-            if let linkElement = workLinkNode as? Element {
-                print("\t" + linkElement.attributeValue(for: "href")!)
-                print("\t" + linkElement.textNodes.first!.text)
-            }
+        HTMLTraverser.findNodes(in: [authorNode], matching: subdocWorkPath).forEach { parseWorkNode($0) }
+
+        let standaloneWorkPath = [
+            ElementSelector().withTagName("tr"),
+            ElementSelector().withTagName("td").withTagName("tdAuthor"),
+            ElementSelector().withTagName("a").withClassName("aResultsHeader")
+        ]
+
+        HTMLTraverser.findNodes(in: [authorNode], matching: standaloneWorkPath).forEach { parseWorkNode($0) }
+    }
+
+    func parseWorkNode(_ node: Node) {
+        if let workElement = node as? Element {
+            print("\t" + workElement.attributeValue(for: "href")!)
+            print("\t" + workElement.textNodes.first!.text)
         }
     }
 
-    func parseAuthorNode(_ node: Node) {
-        guard let authorElement = (node as? Element),
-        let firstChildNode = authorElement.childNodes.first else {
-            print("Unknown element: \(node)")
-
-            return
-        }
-
-        if let authorNameNode = (firstChildNode as? TextNode) {
-            let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
-            print("Author: \(authorName)")
-            authors.append(authorName)
-        } else if let titleNode = (firstChildNode as? Element),
-                  titleNode.tagName == "a",
-                  let title = titleNode.textNodes.first?.text {
-            print("Title: \(title)")
-        }
-    }
+//    func parseAuthorNode(_ node: Node) {
+//        guard let authorElement = (node as? Element),
+//        let firstChildNode = authorElement.childNodes.first else {
+//            print("Unknown element: \(node)")
+//
+//            return
+//        }
+//
+//        if let authorNameNode = (firstChildNode as? TextNode) {
+//            let authorName = authorNameNode.text.trimmingCharacters(in: ["."])
+//            print("Author: \(authorName)")
+//            authors.append(authorName)
+//        } else if let titleNode = (firstChildNode as? Element),
+//                  titleNode.tagName == "a",
+//                  let title = titleNode.textNodes.first?.text {
+//            print("Title: \(title)")
+//        }
+//    }
 
 }
