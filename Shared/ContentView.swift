@@ -72,7 +72,8 @@ struct WorkView: View {
                         text = perseusXML.book.text
                     }
                 }
-            }}
+            }
+        }
     }
 
 }
@@ -96,7 +97,7 @@ struct ContentView: View {
                             Text(author.fullName ?? "(unknown)")
                         }
                     }
-                    
+
                     Spacer()
                 }
             }

@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "stylobate",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jrtibbetts/Stylobate",
+      "state" : {
+        "revision" : "c4cdcf9a084a4d6910c9ed44babc089fcb9c5bb4",
+        "version" : "0.33.2"
+      }
+    },
+    {
       "identity" : "swift-html-parser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rnantes/swift-html-parser.git",

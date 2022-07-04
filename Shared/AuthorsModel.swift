@@ -7,6 +7,7 @@
 
 import CoreData
 import Foundation
+import Stylobate
 import SwiftHTMLParser
 import SwiftUI
 
@@ -63,6 +64,9 @@ class AuthorsModel: ObservableObject {
     @Published var authors: [String] = []
 
     func fetchAuthors(viewContext: NSManagedObjectContext) {
+        let authorContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        authorContext.parent = viewContext
+
         DispatchQueue(label: "download-authors").async {
             do {
                 let authorsUrl = URL(string: "https://www.perseus.tufts.edu/hopper/collection?collection=Perseus:collection:Greco-Roman")!
@@ -97,10 +101,10 @@ class AuthorsModel: ObservableObject {
 
                 authorNodes.append(contentsOf: HTMLTraverser.findNodes(in: authorsHtml, matching: hiddenAuthorPath))
 
-                authorNodes.forEach { self.parseAuthorNode($0, viewContext: viewContext) }
+                authorNodes.forEach { self.parseAuthorNode($0, viewContext: authorContext) }
 
-                if viewContext.hasChanges {
-                    try viewContext.save()
+                if authorContext.hasChanges {
+                    try authorContext.save()
                 }
             } catch {
                 print("Failed to parse the authors: \(error)")
@@ -129,21 +133,13 @@ class AuthorsModel: ObservableObject {
 
         print("Author: \(authorName)")
 
-        var author: Author?
 
         let authorRequest = NSFetchRequest<Author>(entityName: "Author")
         authorRequest.predicate = NSPredicate(format: "sortName == %@", authorName)
 
-        do {
-            author = try viewContext.fetch(authorRequest).first
-        } catch {
-            print("Failed to fetch the author")
-        }
-
-        if author == nil {
-            author = Author(context: viewContext)
-            author?.fullName = authorName
-            author?.sortName = authorName
+        let author: Author = try! viewContext.fetchOrCreate(withRequest: authorRequest) { (author) in
+            author.fullName = authorName
+            author.sortName = authorName
         }
 
         var workNodes: [Node] = []
@@ -166,13 +162,30 @@ class AuthorsModel: ObservableObject {
 
         workNodes.append(contentsOf: HTMLTraverser.findNodes(in: [authorNode], matching: standaloneWorkPath))
 
-        workNodes.forEach { parseWorkNode($0, author: author!) }
+        workNodes.forEach { parseWorkNode($0, author: author, viewContext: viewContext) }
     }
 
-    func parseWorkNode(_ node: Node, author: Author) {
-        if let workElement = node as? Element {
-            print("\t" + workElement.attributeValue(for: "href")!)
-            print("\t" + workElement.textNodes.first!.text)
+    func parseWorkNode(_ node: Node,
+                       author: Author,
+                       viewContext: NSManagedObjectContext) {
+        let workElement = node as! Element
+        let title = workElement.textNodes.first!.text
+        var path = workElement.attributeValue(for: "href")!
+
+        if let pathIdRange = path.range(of: #"\d*\.\d*\.\d*"#, options: .regularExpression) {
+            path = String(path[pathIdRange])
+        }
+
+        let workRequest = NSFetchRequest<Work>(entityName: "Work")
+        workRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "title == %@", title),
+            NSPredicate(format: "perseusID == %@", path)
+        ])
+
+        _ = try! viewContext.fetchOrCreate(withRequest: workRequest) { (work) in
+            work.title = title
+            work.perseusID = path
+            work.addToAuthors(author)
         }
     }
 

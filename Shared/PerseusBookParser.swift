@@ -20,7 +20,7 @@ public struct Chapter: PerseusElement {
     public static var tag = "div2"
 
     public var milestones: [Milestone] = []
-    public var number: Int = -1
+    public var number: Int = 0
     public var org: String = "uniform"
     public var sample: String = "complete"
     public var text: String {
@@ -30,8 +30,9 @@ public struct Chapter: PerseusElement {
     }
 
     public init(_ attributes: [String: String] = [:]) {
-        if let numberString = attributes["n"] {
-            number = Int(numberString)!
+        if let numberString = attributes["n"],
+           let intNumber = Int(numberString) {
+            number = intNumber
         }
 
         if let orgAttr = attributes["org"] {

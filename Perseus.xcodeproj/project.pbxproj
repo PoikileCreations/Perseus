@@ -26,6 +26,7 @@
 		964726032842645200DF76E6 /* PerseusBookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964726022842645200DF76E6 /* PerseusBookParser.swift */; };
 		964726042842645200DF76E6 /* PerseusBookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964726022842645200DF76E6 /* PerseusBookParser.swift */; };
 		9647260A28446D8800DF76E6 /* SwiftHTMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 9647260928446D8800DF76E6 /* SwiftHTMLParser */; };
+		96B532E4287344BD0029732B /* Stylobate in Frameworks */ = {isa = PBXBuildFile; productRef = 96B532E3287344BD0029732B /* Stylobate */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96B532E4287344BD0029732B /* Stylobate in Frameworks */,
 				9647260A28446D8800DF76E6 /* SwiftHTMLParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -177,6 +179,7 @@
 			name = "Perseus (iOS)";
 			packageProductDependencies = (
 				9647260928446D8800DF76E6 /* SwiftHTMLParser */,
+				96B532E3287344BD0029732B /* Stylobate */,
 			);
 			productName = "Perseus (iOS)";
 			productReference = 964725C6283F1F9900DF76E6 /* Perseus.app */;
@@ -272,6 +275,7 @@
 			mainGroup = 964725B6283F1F9800DF76E6;
 			packageReferences = (
 				9647260828446D8800DF76E6 /* XCRemoteSwiftPackageReference "swift-html-parser" */,
+				96B532E2287344BC0029732B /* XCRemoteSwiftPackageReference "Stylobate" */,
 			);
 			productRefGroup = 964725C7283F1F9900DF76E6 /* Products */;
 			projectDirPath = "";
@@ -751,6 +755,14 @@
 				kind = branch;
 			};
 		};
+		96B532E2287344BC0029732B /* XCRemoteSwiftPackageReference "Stylobate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jrtibbetts/Stylobate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -758,6 +770,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9647260828446D8800DF76E6 /* XCRemoteSwiftPackageReference "swift-html-parser" */;
 			productName = SwiftHTMLParser;
+		};
+		96B532E3287344BD0029732B /* Stylobate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96B532E2287344BC0029732B /* XCRemoteSwiftPackageReference "Stylobate" */;
+			productName = Stylobate;
 		};
 /* End XCSwiftPackageProductDependency section */
 
