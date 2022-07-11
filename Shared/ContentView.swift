@@ -35,14 +35,17 @@ struct AuthorView: View {
     var author: Author
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8.0) {
-            ForEach(author.sortedWorks()) { (work) in
-                NavigationLink(destination: WorkView(work: work)) {
-                    Text(work.title ?? "(untitled)")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8.0) {
+                ForEach(author.sortedWorks()) { (work) in
+                    NavigationLink(destination: WorkView(work: work)) {
+                        Text(work.title ?? "(untitled)")
+                    }
                 }
-            }
 
-            Spacer()
+                Spacer()
+            }
+            .padding()
         }
         .navigationTitle(author.fullName ?? "")
     }
@@ -56,8 +59,8 @@ struct WorkView: View {
     var work: Work
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8.0) {
-            ScrollView {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8.0) {
                 Text(text)
             }
         }
@@ -69,7 +72,13 @@ struct WorkView: View {
                    let perseusXML = PerseusBookParser(perseusID: perseusID) {
                     perseusXML.parse()
                     DispatchQueue.main.async {
-                        text = perseusXML.book.text
+                        let fullText = perseusXML.book.text
+
+                        if fullText.isEmpty {
+                            text = "(no text)"
+                        } else {
+                            text = fullText
+                        }
                     }
                 }
             }
@@ -95,11 +104,19 @@ struct ContentView: View {
                     ForEach(authors, id: \Author.sortName) { (author) in
                         NavigationLink(destination: AuthorView(author: author)) {
                             Text(author.fullName ?? "(unknown)")
+                            Spacer()
+
+                            if let worksCount = author.works?.count {
+                                Text("\(worksCount)")
+                            } else {
+                                Text("-")
+                            }
                         }
                     }
 
                     Spacer()
                 }
+                .padding()
             }
             .navigationTitle("Authors")
         }

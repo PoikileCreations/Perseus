@@ -163,6 +163,10 @@ class AuthorsModel: ObservableObject {
         workNodes.append(contentsOf: HTMLTraverser.findNodes(in: [authorNode], matching: standaloneWorkPath))
 
         workNodes.forEach { parseWorkNode($0, author: author, viewContext: viewContext) }
+
+        if author.works?.count == 0 {
+            print("No works found for \(author.fullName!)")
+        }
     }
 
     func parseWorkNode(_ node: Node,
@@ -174,6 +178,8 @@ class AuthorsModel: ObservableObject {
 
         if let pathIdRange = path.range(of: #"\d*\.\d*\.\d*"#, options: .regularExpression) {
             path = String(path[pathIdRange])
+        } else {
+            print("Malformed path '\(path)'")
         }
 
         let workRequest = NSFetchRequest<Work>(entityName: "Work")
