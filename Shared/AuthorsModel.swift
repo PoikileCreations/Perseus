@@ -162,6 +162,16 @@ class AuthorsModel: ObservableObject {
 
         workNodes.append(contentsOf: HTMLTraverser.findNodes(in: [authorNode], matching: standaloneWorkPath))
 
+        let brokenWorkPath = [
+            ElementSelector().withTagName("tr"),
+            ElementSelector().withTagName("td"),
+            ElementSelector().withTagName("td").withClassName("tdExpand"),
+            ElementSelector().withTagName("td").withClassName("tdAuthor"),
+            ElementSelector().withTagName("a").withClassName("aResultsHeader")
+        ]
+
+        workNodes.append(contentsOf: HTMLTraverser.findNodes(in: [authorNode], matching: brokenWorkPath))
+
         workNodes.forEach { parseWorkNode($0, author: author, viewContext: viewContext) }
 
         if author.works?.count == 0 {
