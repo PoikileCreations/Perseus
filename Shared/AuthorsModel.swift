@@ -131,9 +131,6 @@ class AuthorsModel: ObservableObject {
             authorName = "Anonymous"
         }
 
-        print("Author: \(authorName)")
-
-
         let authorRequest = NSFetchRequest<Author>(entityName: "Author")
         authorRequest.predicate = NSPredicate(format: "sortName == %@", authorName)
 
@@ -203,6 +200,8 @@ class AuthorsModel: ObservableObject {
             work.perseusID = path
             work.addToAuthors(author)
         }
+
+        print([author.fullName, title, path].map { $0 ?? "-" }.joined(separator: "/"))
     }
 
 }

@@ -75,7 +75,7 @@ struct WorkView: View {
                         let fullText = perseusXML.book.text
 
                         if fullText.isEmpty {
-                            text = "(no text)"
+                            text = "(no text)\n\(perseusID)"
                         } else {
                             text = fullText
                         }
